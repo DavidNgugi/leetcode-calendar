@@ -175,11 +175,11 @@ class GoogleCalendar(BaseClass):
             "description": problem["link"],
             "start": {
                 "dateTime": self.formart_date(startTime),
-                "timeZone": "Asia/Kolkata",
+                "timeZone": config.timezone,
             },
             "end": {
                 "dateTime": self.formart_date(endTime),
-                "timeZone": "Asia/Kolkata",
+                "timeZone": config.timezone,
             },
             "colorId": self.get_color_for_problem(problem),
         }

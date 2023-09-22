@@ -20,6 +20,7 @@ class Config:
         self.daily_question_limit = int(os.getenv("DAILY_QUESTION_LIMIT", 2))
         self.total_question_limit = int(os.getenv("TOTAL_QUESTION_LIMIT", 10))
         self.question_time_limit = float(os.getenv("QUESTION_TIME_LIMIT", 1))
+        self.timezone = os.getenv("TIMEZONE", "America/Los_Angeles")
     
     def get_scope_list(self, scopes: str) -> List[str]:
         return scopes.split(",")
