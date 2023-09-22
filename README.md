@@ -53,3 +53,14 @@ or use Makefile command found in `Makefile` file
 ```sh
 make dry-run
 ```
+
+### Future Plans
+
+1. Shuffle answers based on user preference
+2. Vary question time based on problem difficulty
+3. Avoid overlapping with other calendar events
+4. Scrape all questions from LeetCode instead of NeetCode
+5. Connect to personal calendar instead of having to create a new calendar
+### Licencing
+
+Licensed using the MIT Licence and therefore free for commercial purposes;
