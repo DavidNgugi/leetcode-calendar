@@ -1,0 +1,21 @@
+leetcode/
+venv/
+lib/
+bin/
+.mypy_cache
+.pytest_cache
+.poetry-cache
+.venv
+*.pyc
+*.pyo
+__pycache__
+.DS_Store
+.env
+*.log
+*.cfg
+
+# VS Code
+*.code-workspace
+.vscode
+
+*.json
