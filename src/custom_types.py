@@ -19,6 +19,10 @@ TEvent = TypeVar("TEvent", bound=dict[str, str])
 #         # dont repeat
 #         'RRULE:FREQ=DAILY;COUNT=1'
 #     ],
+#     'attendees': [
+#        {'email': ''},
+#     ],
+#     'colorId': 1,
 # }
 class Event(Generic[TEvent]):
     def __init__(self) -> None:
@@ -28,10 +32,11 @@ class Event(Generic[TEvent]):
         self.start: dict[str, str] = {}
         self.end: dict[str, str] = {}
         self.recurrence: list[str] = []
+        self.colorId: int = 0
 
     def __str__(self) -> str:
-        return "Event(summary={}, location={}, description={}, start={}, end={}, recurrence={})".format(
-            self.summary, self.location, self.description, self.start, self.end, self.recurrence
+        return "Event(summary={}, location={}, description={}, start={}, end={}, recurrence={}, colorId={})".format(
+            self.summary, self.location, self.description, self.start, self.end, self.recurrence, self.colorId
         )
     
     def __repr__(self) -> str:
