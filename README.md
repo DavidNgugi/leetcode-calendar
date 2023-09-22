@@ -62,6 +62,7 @@ make dry-run
 4. Avoid overlapping with other calendar events
 5. Scrape all questions from LeetCode instead of NeetCode
 6. Connect to personal calendar instead of having to create a new calendar
+7. Dockerize
 ### Licencing
 
 Licensed using the MIT Licence and therefore free for commercial purposes;
