@@ -1,5 +1,5 @@
 import json
-import datetime
+from datetime import datetime, timedelta
 from pprint import pprint
 from typing import List, Tuple
 
@@ -10,8 +10,8 @@ from google.oauth2 import service_account
 
 from config import config
 from custom_types import Event
+from constants import DATE_FORMAT
 from utils.utils import get_file_path
-
 
 class GoogleCalendar(BaseClass):
     def __init__(self, dry: bool = False, verbose: bool = False) -> None:
@@ -24,20 +24,28 @@ class GoogleCalendar(BaseClass):
         return "Calendar(dry={}, verbose={})".format(self.dry, self.verbose)
 
     def get_credentials(self):
-        return service_account.Credentials.from_service_account_file(
-            config.calendar_credentials_file, scopes=config.calendar_scopes
-        )
+        try:
+            return service_account.Credentials.from_service_account_file(
+                config.calendar_credentials_file, scopes=config.calendar_scopes
+            )
+        except Exception as e:
+            self.log("Error get_credentials: %s" % e)
+            raise e
 
-    def get_events(self) -> List[Event]:
-        # Call the Calendar API
-        all_events: List[Tuple[datetime.datetime, str]] = []
+    def get_events(self, start_time: str = None, max_results:int = 10) -> List[Event]:
+        all_events: List[Tuple[datetime, str]] = []
 
         try:
-            now = datetime.datetime.utcnow().isoformat() + "Z"  # 'Z' indicates UTC time
-            self.log("Getting the upcoming 10 events from now %s" % now)
+            now = datetime.utcnow().isoformat() + "Z"  # 'Z' indicates UTC time
+            # format start_time to isoformat
+            formattedStartTime = str(datetime.strptime(start_time, "%Y-%m-%d").strftime(DATE_FORMAT)) if start_time else None
+            self.log(formattedStartTime)
+            timeMin = formattedStartTime if formattedStartTime else now
+            self.log(f"timeMin = {timeMin}")
+            self.log(f"Getting the upcoming {max_results} events from {timeMin}...")
             options = {
-                "timeMin": now,
-                "maxResults": 10,
+                "timeMin": timeMin,
+                "maxResults": max_results,
                 "singleEvents": True,
                 "orderBy": "startTime",
             }
@@ -57,13 +65,13 @@ class GoogleCalendar(BaseClass):
                     all_events.append((start, event["summary"]))
         except HTTPError as e:
             self.log(
-                "GoogleCalendar received %s while retrieving events" % e.resp.status
+                "Error: GoogleCalendar received %s while retrieving events" % e.resp.status
             )
         finally:
             self.log("Got %s events" % len(all_events))
             return all_events
 
-    def formart_date(self, date: datetime.datetime) -> str:
+    def formart_date(self, date: datetime) -> str:
         return date.isoformat() + "Z"
 
     def create_event(self, event: Event):
@@ -97,24 +105,11 @@ class GoogleCalendar(BaseClass):
 
     def build_events(self, topical_problems: List[List[str]]):
         events = []
-        # 2 problems(events) per day
-        dates = list(
-            map(
-                lambda i: (
-                    self.formart_date(
-                        datetime.datetime.now() + datetime.timedelta(days=i)
-                    ),
-                    0,
-                ),
-                range(self.total_question_limit),
-            )
-        )
+        dates = self.set_event_dates()
 
-        # loop through dates and topics and create events
         seen = set()
         for date, count in dates:
             for topic, problems in topical_problems.items():
-                # self.log("Creating event for %s" % topic)
                 for problem in problems:
                     # ensure only two events are scheduled on the same day and that the event is not already scheduled
                     if count >= self.daily_question_limit or (
@@ -125,44 +120,69 @@ class GoogleCalendar(BaseClass):
                     # if same day startTime should be 1 hour after endTime of previous event if any
                     if count > 0:
                         startTime = (
-                            datetime.datetime.strptime(
-                                events[-1]["end"]["dateTime"], "%Y-%m-%dT%H:%M:%S.%fZ"
+                            datetime.strptime(
+                                events[-1]["end"]["dateTime"], DATE_FORMAT
                             )
-                            + datetime.timedelta(hours=1)
+                            + timedelta(hours=1)
                             if len(events) > 0
-                            else datetime.datetime.strptime(
-                                date, "%Y-%m-%dT%H:%M:%S.%fZ"
+                            else datetime.strptime(
+                                date, DATE_FORMAT
                             )
                         )
                     else:
-                        startTime = datetime.datetime.strptime(
-                            date, "%Y-%m-%dT%H:%M:%S.%fZ"
+                        startTime = datetime.strptime(
+                            date, DATE_FORMAT
                         )
 
-                    endTime = startTime + datetime.timedelta(hours=config.question_time_limit)
+                    endTime = startTime + timedelta(hours=config.question_time_limit)
 
-                    event = {
-                        "summary": f"{topic} - {problem['problem']} ({problem['difficulty']})",
-                        "description": problem["link"],
-                        "start": {
-                            "dateTime": self.formart_date(startTime),
-                            "timeZone": "Asia/Kolkata",
-                        },
-                        "end": {
-                            "dateTime": self.formart_date(endTime),
-                            "timeZone": "Asia/Kolkata",
-                        },
-                    }
+                    event = self.create_event_object(topic, problem, startTime, endTime)
 
                     seen.add(problem["problem"].lower())
                     count += 1
 
                     events.append(event)
 
-        # sort events by date
         events.sort(key=lambda event: event["start"]["dateTime"])
         self.log("Sorted %s events" % len(events))
         return events[:self.total_question_limit]
+    
+    def get_color_for_problem(self, problem) -> int:
+        difficulty_color_map = {
+            "Easy": 1, # blue
+            "Medium": 2, # green
+            "Hard": 3, # red
+        }
+
+        return difficulty_color_map.get(problem["difficulty"], 4)
+    
+    def set_event_dates(self) -> List[Tuple[datetime, int]]:
+        return list(
+            map(
+                lambda i: (
+                    self.formart_date(
+                        datetime.now() + timedelta(days=i)
+                    ),
+                    0,
+                ),
+                range(self.total_question_limit),
+            )
+        )
+    
+    def create_event_object(self, topic, problem, startTime, endTime) -> Event:
+        return {
+            "summary": f"{topic} - {problem['problem']} ({problem['difficulty']})",
+            "description": problem["link"],
+            "start": {
+                "dateTime": self.formart_date(startTime),
+                "timeZone": "Asia/Kolkata",
+            },
+            "end": {
+                "dateTime": self.formart_date(endTime),
+                "timeZone": "Asia/Kolkata",
+            },
+            "colorId": self.get_color_for_problem(problem),
+        }
 
     async def create_problem_schedule(self):
         topical_problems = self.load_problems()

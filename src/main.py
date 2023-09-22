@@ -23,6 +23,8 @@ async def main(scrape = False, schedule = False, dry = False, verbose = False):
         google_calendar = GoogleCalendar(dry, verbose)
         await google_calendar.create_problem_schedule()
         # google_calendar.delete_all_events()
+        # events = google_calendar.get_events(start_time="2023-09-22", max_results=20)
+        # pprint(events)
     
 if __name__ == '__main__':
     main()
