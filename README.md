@@ -2,6 +2,7 @@
 
 A Google calendar schedule generator for Leetcode questions.
 
+![An example schedule on Google Calendar](<src/images/schedule.png>)
 ### Installation
 
 Ensure you have `Poetry` installed running:
