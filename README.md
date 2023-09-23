@@ -39,19 +39,19 @@ cp .env.example .env
 Scrape NeetCode for questions
 
 ```sh
-python3 src/main.py --scrape --dry --verbose
+python3 src/main.py scrape --dry --verbose
 ```
 
 Schedule your calendar
 
 ```sh
-python3 src/main.py --scrape --dry --verbose
+python3 src/main.py schedule --dry --verbose
 ```
 
 or use Makefile command found in `Makefile` file
 
 ```sh
-make dry-run
+make help
 ```
 
 ### Future Plans

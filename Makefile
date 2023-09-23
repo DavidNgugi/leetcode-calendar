@@ -4,26 +4,23 @@ env:
 install:
 	poetry shell && poetry install && cp .env.example .env
 
-dry-run:
-	python3 src/main.py --dry --verbose
-
-run:
-	python3 src/main.py --scrape --schedule
-
 dev-scrape:
-	python3 src/main.py --scrape --verbose
+	python3 src/main.py scrape --verbose
 
 dev-scrape-dry:
-	python3 src/main.py --scrape --dry --verbose
+	python3 src/main.py scrape --dry --verbose
 
 dev-schedule:
-	python3 src/main.py --schedule --verbose
+	python3 src/main.py schedule --verbose
 
 dev-schedule-dry:
-	python3 src/main.py --schedule --dry --verbose
+	python3 src/main.py schedule --dry --verbose
 
 prod-schedule:
-	python3 src/main.py --schedule
+	python3 src/main.py schedule
+
+prod-scrape:
+	python3 src/main.py scrape
 
 config:
 	python3 src/config.py
