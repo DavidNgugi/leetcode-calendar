@@ -2,7 +2,8 @@
 
 A Google calendar schedule generator for Leetcode questions.
 
-![An example schedule on Google Calendar](<src/images/schedule.png>)
+![An example schedule on Google Calendar](src/images/schedule.png)
+
 ### Installation
 
 Ensure you have `Poetry` installed running:
@@ -28,7 +29,7 @@ cp .env.example .env
 ```
 
 - Once you create a key, copy the JSON file you downloaded to `src/data` directory and set the filename in your `.env` as `CALENDAR_CREDENTIALS_FILE`.
-- You can rename your file if you so desire ¯\_(ツ)_/¯
+- You can rename your file if you so desire ¯\_(ツ)\_/¯
 
 ### Running the app
 
@@ -42,10 +43,10 @@ Scrape NeetCode for questions
 python3 src/main.py scrape --dry --verbose
 ```
 
-Schedule your calendar
+Schedule your calendar in dev
 
 ```sh
-python3 src/main.py schedule --dry --verbose
+python3 src/main.py calendar schedule --dry --verbose
 ```
 
 or use Makefile command found in `Makefile` file
@@ -63,6 +64,7 @@ make help
 5. Scrape all questions from LeetCode instead of NeetCode
 6. Connect to personal calendar instead of having to create a new calendar
 7. Dockerize
+
 ### Licencing
 
 Licensed using the MIT Licence and therefore free for commercial purposes;
