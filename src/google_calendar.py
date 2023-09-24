@@ -180,8 +180,8 @@ class GoogleCalendar(BaseClass):
     def get_time_limit_for_problem(self, difficulty: str) -> int:
         difficulty_time_limit_map = {
             "Easy": 0.5,  # 30 mins
-            "Medium": 1,  # 1 hour
-            "Hard": 2,  # 2 hours
+            "Medium": 0.75,  # 45 min
+            "Hard": 0.75,  # 45 min
         }
 
         return difficulty_time_limit_map.get(difficulty, 0.5)
